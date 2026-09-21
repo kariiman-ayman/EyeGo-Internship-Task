@@ -3,6 +3,7 @@
 import { useSelector } from "react-redux";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { RootState } from "@/store/store";
+import OrdersTable from "@/components/orders/OrdersTable";
 
 export default function DashboardPage() {
   const orders = useSelector((state: RootState) => state.orders.orders);
@@ -69,6 +70,9 @@ export default function DashboardPage() {
                 {pendingOrders}
               </p>
             </div>
+          </div>
+          <div className="mt-6">
+            <OrdersTable />
           </div>
         </div>
       </main>
