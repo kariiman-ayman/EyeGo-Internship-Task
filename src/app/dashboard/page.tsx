@@ -1,17 +1,75 @@
 "use client";
 
+import { useSelector } from "react-redux";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { RootState } from "@/store/store";
 
 export default function DashboardPage() {
+  const orders = useSelector((state: RootState) => state.orders.orders);
+
+  const totalOrders = orders.length;
+
+  const totalSales = orders.reduce((total, order) => total + order.amount, 0);
+
+  const completedOrders = orders.filter(
+    (order) => order.status === "Completed",
+  ).length;
+
+  const pendingOrders = orders.filter(
+    (order) => order.status === "Pending",
+  ).length;
+
   return (
     <ProtectedRoute>
-      <main className="flex min-h-screen items-center justify-center bg-gray-100">
-        <div className="rounded-lg bg-white p-8 text-center shadow-md">
-          <h1 className="mb-3 text-3xl font-bold text-gray-900">Dashboard</h1>
+      <main className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              Sales Dashboard
+            </h1>
 
-          <p className="text-gray-600">
-            The sales dashboard will be built here.
-          </p>
+            <p className="mt-1 text-gray-600">
+              Overview of your sales and orders.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-gray-500">Total Orders</p>
+
+              <p className="mt-2 text-2xl font-bold text-gray-900">
+                {totalOrders}
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-gray-500">Total Sales</p>
+
+              <p className="mt-2 text-2xl font-bold text-gray-900">
+                ${totalSales.toLocaleString()}
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-gray-500">
+                Completed Orders
+              </p>
+
+              <p className="mt-2 text-2xl font-bold text-gray-900">
+                {completedOrders}
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-gray-500">
+                Pending Orders
+              </p>
+
+              <p className="mt-2 text-2xl font-bold text-gray-900">
+                {pendingOrders}
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     </ProtectedRoute>
