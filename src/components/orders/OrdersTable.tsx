@@ -5,11 +5,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { OrderStatus } from "@/types/order";
 
+type SortField = "id" | "customer" | "amount" | "date";
+type SortDirection = "asc" | "desc";
+
+const ORDERS_PER_PAGE = 5;
+
 export default function OrdersTable() {
   const orders = useSelector((state: RootState) => state.orders.orders);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"All" | OrderStatus>("All");
+  const [sortField, setSortField] = useState<SortField>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredOrders = useMemo(() => {
     const searchValue = search.toLowerCase().trim();
@@ -26,6 +34,58 @@ export default function OrdersTable() {
     });
   }, [orders, search, status]);
 
+  const sortedOrders = useMemo(() => {
+    return [...filteredOrders].sort((a, b) => {
+      let comparison = 0;
+
+      if (sortField === "amount") {
+        comparison = a.amount - b.amount;
+      } else if (sortField === "date") {
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else {
+        comparison = a[sortField].localeCompare(b[sortField]);
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  }, [filteredOrders, sortField, sortDirection]);
+
+  const totalPages = Math.ceil(sortedOrders.length / ORDERS_PER_PAGE);
+
+  const paginatedOrders = sortedOrders.slice(
+    (currentPage - 1) * ORDERS_PER_PAGE,
+    currentPage * ORDERS_PER_PAGE,
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (value: "All" | OrderStatus) => {
+    setStatus(value);
+    setCurrentPage(1);
+  };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+
+    setCurrentPage(1);
+  };
+
+  const getSortIndicator = (field: SortField) => {
+    if (sortField !== field) {
+      return "";
+    }
+
+    return sortDirection === "asc" ? " ↑" : " ↓";
+  };
+
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="border-b border-gray-200 px-5 py-4">
@@ -35,7 +95,7 @@ export default function OrdersTable() {
           <input
             type="text"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search orders..."
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:max-w-xs"
           />
@@ -43,7 +103,7 @@ export default function OrdersTable() {
           <select
             value={status}
             onChange={(event) =>
-              setStatus(event.target.value as "All" | OrderStatus)
+              handleStatusChange(event.target.value as "All" | OrderStatus)
             }
             className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
           >
@@ -59,17 +119,54 @@ export default function OrdersTable() {
         <table className="w-full min-w-[700px] text-left text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
-              <th className="px-5 py-3 font-medium">Order ID</th>
-              <th className="px-5 py-3 font-medium">Customer</th>
+              <th className="px-5 py-3 font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleSort("id")}
+                  className="hover:text-gray-900"
+                >
+                  Order ID{getSortIndicator("id")}
+                </button>
+              </th>
+
+              <th className="px-5 py-3 font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleSort("customer")}
+                  className="hover:text-gray-900"
+                >
+                  Customer{getSortIndicator("customer")}
+                </button>
+              </th>
+
               <th className="px-5 py-3 font-medium">Product</th>
+
               <th className="px-5 py-3 font-medium">Status</th>
-              <th className="px-5 py-3 font-medium">Amount</th>
-              <th className="px-5 py-3 font-medium">Date</th>
+
+              <th className="px-5 py-3 font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleSort("amount")}
+                  className="hover:text-gray-900"
+                >
+                  Amount{getSortIndicator("amount")}
+                </button>
+              </th>
+
+              <th className="px-5 py-3 font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleSort("date")}
+                  className="hover:text-gray-900"
+                >
+                  Date{getSortIndicator("date")}
+                </button>
+              </th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200">
-            {filteredOrders.map((order) => (
+            {paginatedOrders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
                 <td className="whitespace-nowrap px-5 py-4 font-medium text-gray-900">
                   {order.id}
@@ -108,8 +205,48 @@ export default function OrdersTable() {
         </table>
       </div>
 
-      {filteredOrders.length === 0 && (
+      {sortedOrders.length === 0 && (
         <p className="px-5 py-8 text-center text-gray-500">No orders found.</p>
+      )}
+
+      {totalPages > 0 && (
+        <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-gray-600">
+            Showing{" "}
+            <span className="font-medium">
+              {(currentPage - 1) * ORDERS_PER_PAGE + 1}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium">
+              {Math.min(currentPage * ORDERS_PER_PAGE, sortedOrders.length)}
+            </span>{" "}
+            of <span className="font-medium">{sortedOrders.length}</span> orders
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => page - 1)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((page) => page + 1)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
