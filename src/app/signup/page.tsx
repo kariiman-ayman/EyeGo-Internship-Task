@@ -4,13 +4,12 @@ import { FormEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { KeyRound, Eye, EyeOff } from "lucide-react";
-import { loginUser, logout } from "@/store/slices/authSlice";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { signupUser, logout } from "@/store/slices/authSlice";
 import { AppDispatch, RootState } from "@/store/store";
-import { MOCK_EMAIL, MOCK_PASSWORD } from "@/data/credentials";
 import { JUST_LOGGED_IN_KEY } from "@/utils/session";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const isAuthenticated = useSelector(
@@ -19,6 +18,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -45,13 +45,18 @@ export default function LoginPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     sessionStorage.setItem(JUST_LOGGED_IN_KEY, "1");
     setSubmitting(true);
     setError("");
 
-    const result = await dispatch(loginUser({ email, password }));
+    const result = await dispatch(signupUser({ email, password }));
 
-    if (loginUser.fulfilled.match(result)) {
+    if (signupUser.fulfilled.match(result)) {
       return;
     }
 
@@ -60,7 +65,7 @@ export default function LoginPage() {
     setError(
       typeof result.payload === "string"
         ? result.payload
-        : "Invalid email or password.",
+        : "Sign up failed.",
     );
     setSubmitting(false);
   };
@@ -70,27 +75,16 @@ export default function LoginPage() {
       <div className="glass w-full max-w-md rounded-3xl p-8">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M4 20V10M10 20V4M16 20V8M22 20H2"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <UserPlus size={20} strokeWidth={2.5} className="text-white" />
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Sales Dashboard
+            Create account
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Sign up to get started
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -110,7 +104,7 @@ export default function LoginPage() {
                 setEmail(event.target.value);
                 setError("");
               }}
-              placeholder="Enter your email"
+              placeholder="you@example.com"
               required
               className="glass-input w-full"
             />
@@ -133,8 +127,9 @@ export default function LoginPage() {
                   setPassword(event.target.value);
                   setError("");
                 }}
-                placeholder="Enter your password"
+                placeholder="At least 8 characters"
                 required
+                minLength={8}
                 className="glass-input w-full pr-11"
               />
 
@@ -149,6 +144,29 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <div>
+            <label
+              htmlFor="confirm-password"
+              className="mb-1 block text-sm font-medium text-slate-600"
+            >
+              Confirm password
+            </label>
+
+            <input
+              id="confirm-password"
+              type={showPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+                setError("");
+              }}
+              placeholder="Re-enter your password"
+              required
+              minLength={8}
+              className="glass-input w-full"
+            />
+          </div>
+
           {error && (
             <p className="text-sm text-rose-600" role="alert">
               {error}
@@ -156,41 +174,17 @@ export default function LoginPage() {
           )}
 
           <button type="submit" className="btn w-full" disabled={submitting}>
-            {submitting ? "Signing in..." : "Sign In"}
+            {submitting ? "Creating account..." : "Sign Up"}
           </button>
         </form>
 
-        <div className="mt-6 rounded-2xl border border-white/80 bg-white/50 p-4 text-sm text-slate-600 backdrop-blur">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10">
-              <KeyRound size={14} strokeWidth={2} className="text-[#6366f1]" />
-            </div>
-
-            <p className="font-semibold text-slate-700">Demo credentials</p>
-          </div>
-
-          <div className="mt-3 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Email</span>
-              <span className="font-medium text-slate-700">{MOCK_EMAIL}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Password</span>
-              <span className="font-medium text-slate-700">
-                {MOCK_PASSWORD}
-              </span>
-            </div>
-          </div>
-        </div>
-
         <p className="mt-6 text-center text-sm text-slate-500">
-          Don&apos;t have an account?{" "}
+          Already have an account?{" "}
           <Link
-            href="/signup"
+            href="/login"
             className="font-medium text-indigo-600 transition-colors hover:text-indigo-700"
           >
-            Sign up
+            Sign in
           </Link>
         </p>
       </div>

@@ -16,6 +16,7 @@ store.subscribe(() => {
   saveSession({
     isAuthenticated: auth.isAuthenticated,
     user: auth.user,
+    token: auth.token,
   });
 });
 

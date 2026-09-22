@@ -1,18 +1,37 @@
 "use client";
 
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { RootState, AppDispatch } from "@/store/store";
 import { logout } from "@/store/slices/authSlice";
+import { fetchOrders } from "@/store/slices/ordersSlice";
 import OrdersTable from "@/components/orders/OrdersTable";
 import SalesChart from "@/components/dashboard/SalesChart";
+
+function StatSkeleton() {
+  return (
+    <div className="glass animate-pulse rounded-2xl p-5">
+      <div className="h-3 w-24 rounded-full bg-slate-400/30" />
+      <div className="mt-3 h-7 w-16 rounded-full bg-slate-400/30" />
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const orders = useSelector((state: RootState) => state.orders.orders);
+  const status = useSelector((state: RootState) => state.orders.status);
+  const error = useSelector((state: RootState) => state.orders.error);
+
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchOrders());
+    }
+  }, [dispatch, status]);
 
   const totalOrders = orders.length;
 
@@ -53,49 +72,89 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="glass glass-hover rounded-2xl p-5">
-            <p className="text-sm font-medium text-slate-500">Total Orders</p>
-
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {totalOrders}
-            </p>
+        {status === "loading" && (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
           </div>
+        )}
 
-          <div className="glass glass-hover rounded-2xl p-5">
-            <p className="text-sm font-medium text-slate-500">Total Sales</p>
-
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              ${totalSales.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="glass glass-hover rounded-2xl p-5">
-            <p className="text-sm font-medium text-slate-500">
-              Completed Orders
+        {status === "failed" && (
+          <div className="glass mt-4 flex flex-col items-center gap-3 rounded-2xl px-5 py-14 text-center">
+            <p className="text-base font-medium text-slate-900">
+              Failed to load orders
             </p>
 
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {completedOrders}
-            </p>
-          </div>
-
-          <div className="glass glass-hover rounded-2xl p-5">
-            <p className="text-sm font-medium text-slate-500">
-              Pending Orders
+            <p className="text-sm text-slate-500">
+              {error ?? "Something went wrong while fetching your orders."}
             </p>
 
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {pendingOrders}
-            </p>
+            <button
+              type="button"
+              onClick={() => dispatch(fetchOrders())}
+              className="btn-glass mt-1 text-slate-600"
+            >
+              <RefreshCw size={15} />
+              Retry
+            </button>
           </div>
-        </div>
-          <div className="mt-6">
-            <SalesChart />
-          </div>
-          <div className="mt-6">
-            <OrdersTable />
-          </div>
+        )}
+
+        {status === "succeeded" && (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="glass glass-hover rounded-2xl p-5">
+                <p className="text-sm font-medium text-slate-500">
+                  Total Orders
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {totalOrders}
+                </p>
+              </div>
+
+              <div className="glass glass-hover rounded-2xl p-5">
+                <p className="text-sm font-medium text-slate-500">
+                  Total Sales
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  ${totalSales.toLocaleString()}
+                </p>
+              </div>
+
+              <div className="glass glass-hover rounded-2xl p-5">
+                <p className="text-sm font-medium text-slate-500">
+                  Completed Orders
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {completedOrders}
+                </p>
+              </div>
+
+              <div className="glass glass-hover rounded-2xl p-5">
+                <p className="text-sm font-medium text-slate-500">
+                  Pending Orders
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {pendingOrders}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <SalesChart />
+            </div>
+
+            <div className="mt-6">
+              <OrdersTable />
+            </div>
+          </>
+        )}
       </main>
     </ProtectedRoute>
   );

@@ -1,9 +1,12 @@
 export type StoredSession = {
   isAuthenticated: boolean;
   user: { email: string } | null;
+  token: string | null;
 };
 
 const STORAGE_KEY = "eyego-session";
+
+export const JUST_LOGGED_IN_KEY = "eyego-just-logged-in";
 
 export function loadSession(): StoredSession | null {
   if (typeof window === "undefined") {
