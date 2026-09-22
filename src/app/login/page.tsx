@@ -1,27 +1,51 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useDispatch } from "react-redux";
+import { FormEvent, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
-import { login } from "@/store/slices/authSlice";
-import { AppDispatch } from "@/store/store";
+import { login, logout } from "@/store/slices/authSlice";
+import { AppDispatch, RootState } from "@/store/store";
 
 const MOCK_EMAIL = "admin@example.com";
 const MOCK_PASSWORD = "Eyego@2026";
 
+const JUST_LOGGED_IN_KEY = "eyego-just-logged-in";
+
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    if (sessionStorage.getItem(JUST_LOGGED_IN_KEY)) {
+      sessionStorage.removeItem(JUST_LOGGED_IN_KEY);
+
+      return;
+    }
+
+    dispatch(logout());
+  }, [dispatch, isAuthenticated]);
+
+  if (isAuthenticated) {
+    return null;
+  }
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (email === MOCK_EMAIL && password === MOCK_PASSWORD) {
+      sessionStorage.setItem(JUST_LOGGED_IN_KEY, "1");
       dispatch(login({ email }));
       router.push("/dashboard");
       return;
