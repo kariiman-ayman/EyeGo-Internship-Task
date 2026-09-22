@@ -15,6 +15,7 @@ wrapped in a minimalist liquid-glass design system.
 | Charts       | Recharts                                          |
 | Exports      | jsPDF + jspdf-autotable, SheetJS (xlsx)           |
 | Icons        | lucide-react                                      |
+| Mock API     | Next.js route handlers (`/api/*`)                 |
 | Container    | Docker (multi-stage, Next.js `standalone` output) |
 
 ## Demo Credentials
@@ -75,7 +76,8 @@ If you rebuild frequently, prefer `docker compose up -d --build` over
 
 ```
 src/
-├── app/                    # App Router routes (login, dashboard, layout)
+├── app/                    # App Router routes
+│   ├── api/                # Mock API route handlers (auth, orders)
 │   ├── globals.css         # Design system tokens + glass primitives
 │   └── page.tsx            # Root: redirects by auth state
 ├── components/
@@ -83,7 +85,8 @@ src/
 │   ├── orders/OrdersTable.tsx
 │   ├── orders/ExportButtons.tsx
 │   └── ProtectedRoute.tsx  # Route guard
-├── data/orders.ts          # Mock order data
+├── data/                   # Mock data + credentials
+├── lib/                    # JWT signing + password hashing + user store
 ├── store/                  # Redux Toolkit (auth + orders slices)
 ├── types/order.ts
 └── utils/session.ts        # localStorage persistence helpers
@@ -93,12 +96,35 @@ src/
 
 ### State & authentication
 
-Authentication state lives in a Redux Toolkit slice (`authSlice`). Logging in
-dispatches `login`; the dashboard header dispatches `logout`. Instead of pulling
-in a persistence library, the store subscribes to its own changes and serializes
-the auth slice to `localStorage` through a small helper (`utils/session.ts`),
-then rehydrates it when the store initialises. This keeps the slice reducers pure
-and the persistence path trivial to audit.
+The application talks to a mock API implemented as Next.js route handlers,
+so the UI uses real `fetch()` calls over HTTP and can be pointed at a real
+backend later by changing a few `fetch` URLs:
+
+- `POST /api/auth/signup` — creates an account, returns `{ user, token }`.
+- `POST /api/auth/login` — validates credentials, returns `{ user, token }`.
+- `GET /api/orders` — returns the mock orders dataset, requires a valid JWT.
+
+Authentication is full sign-up/login. Users are held in an in-memory store
+(`src/lib/users.ts`) seeded with the demo admin account; passwords are hashed
+with Node's `scrypt` (salt + `timingSafeEqual`). On login/signup the server
+issues a real **JWT** signed with `jose` (HS256, 2h expiry), and `/api/orders`
+verifies the `Authorization: Bearer` token on every request — returning `401`
+when missing, invalid, or expired. A `401` from the API signs the client out.
+
+> The user store is in-memory, so newly created accounts reset on server
+> restart; the seeded admin account always works.
+
+Authentication state lives in a Redux Toolkit slice (`authSlice`). Signing in
+or up dispatches an async thunk that calls the relevant endpoint; logging out
+uses the dashboard header button. Instead of pulling in a persistence library,
+the store subscribes to its own changes and serializes the auth slice
+(user + token) to `localStorage` through a small helper (`utils/session.ts`),
+then rehydrates it when the store initialises. Orders are fetched on dashboard
+mount via the `fetchOrders` thunk (sending the token), keeping `loading` /
+`failed` states in the slice and rendering skeleton panels while pending.
+
+The JWT signing secret defaults to a development value; override it with the
+`JWT_SECRET` environment variable (set in `docker-compose.yml`).
 
 ### Routing & route guards
 
@@ -128,11 +154,12 @@ with no UI framework:
 
 ### Orders table
 
-Filtering, search, sorting, and pagination are derived from the raw orders with
-`useMemo`, so the Redux state stays a single immutable source. Sortable headers
-show lucide arrows and highlight the active direction. Status is rendered with
-glass pills, and the same derived dataset feeds both the PDF (`jspdf-autotable`)
-and Excel (`xlsx`) exporters.
+Orders are loaded from `GET /api/orders`. Filtering, search, sorting, and
+pagination are derived from the fetched orders with `useMemo`, so the Redux state
+stays a single immutable source. Sortable headers show lucide arrows and
+highlight the active direction. Status is rendered with glass pills, and the
+same derived dataset feeds both the PDF (`jspdf-autotable`) and Excel (`xlsx`)
+exporters.
 
 ### Exports
 

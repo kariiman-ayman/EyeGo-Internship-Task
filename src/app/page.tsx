@@ -10,7 +10,9 @@ export default function Home() {
   useEffect(() => {
     const session = loadSession();
 
-    router.replace(session?.isAuthenticated ? "/dashboard" : "/login");
+    router.replace(
+      session?.isAuthenticated && session?.token ? "/dashboard" : "/login",
+    );
   }, [router]);
 
   return null;
