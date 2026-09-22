@@ -188,6 +188,8 @@ body::before {
 .pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 6rem;
   border-radius: 999px;
   border: 1px solid;
   padding: 0.28rem 0.75rem;
