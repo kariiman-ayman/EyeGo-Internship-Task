@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { RootState } from "@/store/store";
 import { OrderStatus } from "@/types/order";
 import ExportButtons from "@/components/orders/ExportButtons";
@@ -10,6 +11,44 @@ type SortField = "id" | "customer" | "amount" | "date";
 type SortDirection = "asc" | "desc";
 
 const ORDERS_PER_PAGE = 5;
+
+function SortButton({
+  label,
+  field,
+  sortField,
+  sortDirection,
+  onClick,
+}: {
+  label: string;
+  field: SortField;
+  sortField: SortField;
+  sortDirection: SortDirection;
+  onClick: () => void;
+}) {
+  const isActive = sortField === field;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex cursor-pointer items-center gap-1.5 font-medium transition-colors hover:text-indigo-600 ${
+        isActive ? "text-indigo-600" : ""
+      }`}
+    >
+      {label}
+
+      {isActive ? (
+        sortDirection === "asc" ? (
+          <ArrowUp size={13} strokeWidth={2.5} />
+        ) : (
+          <ArrowDown size={13} strokeWidth={2.5} />
+        )
+      ) : (
+        <ArrowUpDown size={13} className="opacity-40" />
+      )}
+    </button>
+  );
+}
 
 export default function OrdersTable() {
   const orders = useSelector((state: RootState) => state.orders.orders);
@@ -85,14 +124,6 @@ export default function OrdersTable() {
     setCurrentPage(1);
   };
 
-  const getSortIndicator = (field: SortField) => {
-    if (sortField !== field) {
-      return "";
-    }
-
-    return sortDirection === "asc" ? " ↑" : " ↓";
-  };
-
   return (
     <div className="glass overflow-hidden rounded-2xl">
       <div className="border-b border-white/60 px-5 py-4">
@@ -136,48 +167,48 @@ export default function OrdersTable() {
         <table className="w-full min-w-[700px] text-left text-sm">
           <thead className="bg-white/40 text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-5 py-3 font-medium">
-                <button
-                  type="button"
+              <th className="px-5 py-3">
+                <SortButton
+                  label="Order ID"
+                  field="id"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
                   onClick={() => handleSort("id")}
-                  className="hover:text-slate-900"
-                >
-                  Order ID{getSortIndicator("id")}
-                </button>
+                />
               </th>
 
-              <th className="px-5 py-3 font-medium">
-                <button
-                  type="button"
+              <th className="px-5 py-3">
+                <SortButton
+                  label="Customer"
+                  field="customer"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
                   onClick={() => handleSort("customer")}
-                  className="hover:text-slate-900"
-                >
-                  Customer{getSortIndicator("customer")}
-                </button>
+                />
               </th>
 
               <th className="px-5 py-3 font-medium">Product</th>
 
               <th className="px-5 py-3 font-medium">Status</th>
 
-              <th className="px-5 py-3 font-medium">
-                <button
-                  type="button"
+              <th className="px-5 py-3">
+                <SortButton
+                  label="Amount"
+                  field="amount"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
                   onClick={() => handleSort("amount")}
-                  className="hover:text-slate-900"
-                >
-                  Amount{getSortIndicator("amount")}
-                </button>
+                />
               </th>
 
-              <th className="px-5 py-3 font-medium">
-                <button
-                  type="button"
+              <th className="px-5 py-3">
+                <SortButton
+                  label="Date"
+                  field="date"
+                  sortField={sortField}
+                  sortDirection={sortDirection}
                   onClick={() => handleSort("date")}
-                  className="hover:text-slate-900"
-                >
-                  Date{getSortIndicator("date")}
-                </button>
+                />
               </th>
             </tr>
           </thead>
