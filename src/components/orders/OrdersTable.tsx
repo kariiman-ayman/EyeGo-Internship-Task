@@ -53,6 +53,12 @@ export default function OrdersTable() {
 
   const totalPages = Math.ceil(sortedOrders.length / ORDERS_PER_PAGE);
 
+  //   useEffect(() => {
+  //     if (totalPages > 0 && currentPage > totalPages) {
+  //       setCurrentPage(totalPages);
+  //     }
+  //   }, [currentPage, totalPages]);
+
   const paginatedOrders = sortedOrders.slice(
     (currentPage - 1) * ORDERS_PER_PAGE,
     currentPage * ORDERS_PER_PAGE,
@@ -217,7 +223,13 @@ export default function OrdersTable() {
       </div>
 
       {sortedOrders.length === 0 && (
-        <p className="px-5 py-8 text-center text-gray-500">No orders found.</p>
+        <div className="px-5 py-12 text-center">
+          <p className="text-base font-medium text-gray-900">No orders found</p>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Try changing your search or filter.
+          </p>
+        </div>
       )}
 
       {totalPages > 0 && (
