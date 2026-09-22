@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+      <main className="min-h-screen bg-gray-100 px-3 py-4 sm:px-6 sm:py-6 lg:p-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -35,7 +35,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-lg bg-white p-5 shadow-sm">
               <p className="text-sm font-medium text-gray-500">Total Orders</p>
 

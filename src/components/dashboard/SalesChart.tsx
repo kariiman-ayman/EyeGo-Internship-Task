@@ -28,7 +28,7 @@ export default function SalesChart() {
         <p className="text-sm text-gray-500">Daily sales based on orders</p>
       </div>
 
-      <div className="h-[300px] w-full">
+      <div className="h-[250px] w-full sm:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}

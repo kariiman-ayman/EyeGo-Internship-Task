@@ -100,27 +100,29 @@ export default function OrdersTable() {
           <ExportButtons orders={sortedOrders} />
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <input
-            type="text"
-            value={search}
-            onChange={(event) => handleSearchChange(event.target.value)}
-            placeholder="Search orders..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:max-w-xs"
-          />
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder="Search orders..."
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:w-64"
+            />
 
-          <select
-            value={status}
-            onChange={(event) =>
-              handleStatusChange(event.target.value as "All" | OrderStatus)
-            }
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Completed">Completed</option>
-            <option value="Pending">Pending</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
+            <select
+              value={status}
+              onChange={(event) =>
+                handleStatusChange(event.target.value as "All" | OrderStatus)
+              }
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Completed">Completed</option>
+              <option value="Pending">Pending</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
       </div>
 
