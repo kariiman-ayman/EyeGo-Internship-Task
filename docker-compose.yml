@@ -8,4 +8,5 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - JWT_SECRET=eyego-dev-jwt-secret-change-me
     restart: unless-stopped
