@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Admin Sales Dashboard
+
+A lightweight sales management dashboard built with Next.js. It features a mock
+authentication flow, persisted sessions, KPI cards, a sales chart, and a
+sortable/filterable/paginated orders table with PDF and Excel export — all
+wrapped in a minimalist liquid-glass design system.
+
+## Tech Stack
+
+| Layer        | Technology                                        |
+| ------------ | ------------------------------------------------- |
+| Framework    | Next.js 16 (App Router, Turbopack)                |
+| UI           | React 19, TypeScript, Tailwind CSS v4             |
+| State        | Redux Toolkit + React-Redux                       |
+| Charts       | Recharts                                          |
+| Exports      | jsPDF + jspdf-autotable, SheetJS (xlsx)           |
+| Icons        | lucide-react                                      |
+| Container    | Docker (multi-stage, Next.js `standalone` output) |
+
+## Demo Credentials
+
+```
+Email:    admin@example.com
+Password: Eyego@2026
+```
+
+> These are mock credentials — there is no backend. The session is held in the
+> browser and persisted to `localStorage`.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20.9+ (or Docker, see below)
+
+### Run locally (development)
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The root route redirects to
+the login page (or the dashboard if you are already authenticated).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Run with Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+docker compose up -d --build
+```
 
-## Learn More
+This builds the production image (multi-stage, `standalone` output) and serves
+the app on [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+Stop it with:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker compose down
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you rebuild frequently, prefer `docker compose up -d --build` over
+`docker run` — compose recreates the container automatically, whereas
+`docker run` will report a name conflict until the old container is removed.
 
-## Deploy on Vercel
+## Available Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command          | Description                          |
+| ---------------- | ------------------------------------ |
+| `npm run dev`    | Start the development server         |
+| `npm run build`  | Production build                     |
+| `npm run start`  | Serve the production build           |
+| `npm run lint`   | Run ESLint                           |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+src/
+├── app/                    # App Router routes (login, dashboard, layout)
+│   ├── globals.css         # Design system tokens + glass primitives
+│   └── page.tsx            # Root: redirects by auth state
+├── components/
+│   ├── dashboard/SalesChart.tsx
+│   ├── orders/OrdersTable.tsx
+│   ├── orders/ExportButtons.tsx
+│   └── ProtectedRoute.tsx  # Route guard
+├── data/orders.ts          # Mock order data
+├── store/                  # Redux Toolkit (auth + orders slices)
+├── types/order.ts
+└── utils/session.ts        # localStorage persistence helpers
+```
+
+## Implementation Approach
+
+### State & authentication
+
+Authentication state lives in a Redux Toolkit slice (`authSlice`). Logging in
+dispatches `login`; the dashboard header dispatches `logout`. Instead of pulling
+in a persistence library, the store subscribes to its own changes and serializes
+the auth slice to `localStorage` through a small helper (`utils/session.ts`),
+then rehydrates it when the store initialises. This keeps the slice reducers pure
+and the persistence path trivial to audit.
+
+### Routing & route guards
+
+- The root route reads the stored session and has no fixed target: authenticated
+  users are sent to `/dashboard`, everyone else to `/login`.
+- `ProtectedRoute` wraps the dashboard and redirects unauthenticated visitors
+  back to the login page, so the dashboard can never be reached without a
+  session.
+- Returning to the login page while already authenticated (e.g. browser back or
+  a typed URL) logs the user out — a transient `sessionStorage` marker set just
+  before navigation prevents this rule from kicking in for the user who just
+  authenticated.
+
+### Design system
+
+The UI is a custom liquid-glass design system written in plain CSS + Tailwind,
+with no UI framework:
+
+- A fixed aurora gradient background (no `background-attachment`, which is janky
+  on mobile).
+- Reusable glass primitives: `.glass` panels (frosted background, backdrop blur,
+  specular inner highlight), `.glass-input`, gradient `.btn`, translucent
+  `.btn-glass`, and tinted `.pill` status chips.
+- System font stack (zero network cost), GPU-cheap hover effects that animate
+  only `transform`, and `backdrop-filter` applied only to the ~8 panels that need
+  it — keeping the bundle and paint cost low.
+
+### Orders table
+
+Filtering, search, sorting, and pagination are derived from the raw orders with
+`useMemo`, so the Redux state stays a single immutable source. Sortable headers
+show lucide arrows and highlight the active direction. Status is rendered with
+glass pills, and the same derived dataset feeds both the PDF (`jspdf-autotable`)
+and Excel (`xlsx`) exporters.
+
+### Exports
+
+`ExportButtons` builds a report client-side from the currently filtered and
+sorted orders. PDF generation uses `jsPDF` with an auto-table layout; Excel uses
+SheetJS to build a workbook in the browser.
+
+## License
+
+Private project — no license specified.

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { loadSession } from "@/utils/session";
 
 type User = {
   email: string;
@@ -9,9 +10,11 @@ type AuthState = {
   user: User | null;
 };
 
+const stored = loadSession();
+
 const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: stored?.isAuthenticated ?? false,
+  user: stored?.user ?? null,
 };
 
 const authSlice = createSlice({
