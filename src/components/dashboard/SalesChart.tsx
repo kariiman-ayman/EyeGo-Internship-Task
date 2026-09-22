@@ -21,11 +21,13 @@ export default function SalesChart() {
   }));
 
   return (
-    <div className="rounded-lg bg-white p-5 shadow-sm">
+    <div className="glass rounded-2xl p-5">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-gray-900">Sales Over Time</h2>
+        <h2 className="text-lg font-semibold text-slate-900">
+          Sales Over Time
+        </h2>
 
-        <p className="text-sm text-gray-500">Daily sales based on orders</p>
+        <p className="text-sm text-slate-500">Daily sales based on orders</p>
       </div>
 
       <div className="h-[250px] w-full sm:h-[300px]">
@@ -39,13 +41,45 @@ export default function SalesChart() {
               bottom: 10,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <defs>
+              <linearGradient id="salesStroke" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#6366f1" />
+                <stop offset="100%" stopColor="#22d3ee" />
+              </linearGradient>
+            </defs>
 
-            <XAxis dataKey="date" />
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.22)" />
 
-            <YAxis />
+            <XAxis
+              dataKey="date"
+              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              dy={8}
+            />
+
+            <YAxis
+              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              width={52}
+            />
 
             <Tooltip
+              cursor={{
+                stroke: "rgba(99,102,241,0.35)",
+                strokeDasharray: "4 4",
+              }}
+              contentStyle={{
+                background: "rgba(255,255,255,0.85)",
+                backdropFilter: "blur(12px)",
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.9)",
+                boxShadow: "0 8px 24px rgba(49,61,125,0.18)",
+                color: "#1e293b",
+                fontSize: 12,
+                fontWeight: 600,
+              }}
               formatter={(value) => [
                 `$${Number(value).toLocaleString()}`,
                 "Sales",
@@ -55,9 +89,10 @@ export default function SalesChart() {
             <Line
               type="monotone"
               dataKey="sales"
-              stroke="#2563eb"
-              strokeWidth={2}
-              dot={{ r: 3 }}
+              stroke="url(#salesStroke)"
+              strokeWidth={2.5}
+              dot={{ r: 2.5, fill: "#6366f1", strokeWidth: 0 }}
+              activeDot={{ r: 4.5 }}
             />
           </LineChart>
         </ResponsiveContainer>

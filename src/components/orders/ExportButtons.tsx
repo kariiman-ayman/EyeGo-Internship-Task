@@ -55,7 +55,7 @@ export default function ExportButtons({ orders }: ExportButtonsProps) {
       <button
         type="button"
         onClick={exportToPDF}
-        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+        className="btn-glass text-rose-600"
       >
         Export PDF
       </button>
@@ -63,7 +63,7 @@ export default function ExportButtons({ orders }: ExportButtonsProps) {
       <button
         type="button"
         onClick={exportToExcel}
-        className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+        className="btn-glass text-emerald-600"
       >
         Export Excel
       </button>

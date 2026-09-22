@@ -23,62 +23,60 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-gray-100 px-3 py-4 sm:px-6 sm:py-6 lg:p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Sales Dashboard
-            </h1>
+      <main className="mx-auto min-h-screen max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:p-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Sales Dashboard
+          </h1>
 
-            <p className="mt-1 text-gray-600">
-              Overview of your sales and orders.
+          <p className="mt-1.5 text-slate-500">
+            Overview of your sales and orders.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="glass glass-hover rounded-2xl p-5">
+            <p className="text-sm font-medium text-slate-500">Total Orders</p>
+
+            <p className="mt-2 text-2xl font-bold text-slate-900">
+              {totalOrders}
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-lg bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-gray-500">Total Orders</p>
+          <div className="glass glass-hover rounded-2xl p-5">
+            <p className="text-sm font-medium text-slate-500">Total Sales</p>
 
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {totalOrders}
-              </p>
-            </div>
-
-            <div className="rounded-lg bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-gray-500">Total Sales</p>
-
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                ${totalSales.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="rounded-lg bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-gray-500">
-                Completed Orders
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {completedOrders}
-              </p>
-            </div>
-
-            <div className="rounded-lg bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-gray-500">
-                Pending Orders
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {pendingOrders}
-              </p>
-            </div>
+            <p className="mt-2 text-2xl font-bold text-slate-900">
+              ${totalSales.toLocaleString()}
+            </p>
           </div>
+
+          <div className="glass glass-hover rounded-2xl p-5">
+            <p className="text-sm font-medium text-slate-500">
+              Completed Orders
+            </p>
+
+            <p className="mt-2 text-2xl font-bold text-slate-900">
+              {completedOrders}
+            </p>
+          </div>
+
+          <div className="glass glass-hover rounded-2xl p-5">
+            <p className="text-sm font-medium text-slate-500">
+              Pending Orders
+            </p>
+
+            <p className="mt-2 text-2xl font-bold text-slate-900">
+              {pendingOrders}
+            </p>
+          </div>
+        </div>
           <div className="mt-6">
             <SalesChart />
           </div>
           <div className="mt-6">
             <OrdersTable />
           </div>
-        </div>
       </main>
     </ProtectedRoute>
   );

@@ -94,11 +94,11 @@ export default function OrdersTable() {
   };
 
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-      <div className="border-b border-gray-200 px-5 py-4">
+    <div className="glass overflow-hidden rounded-2xl">
+      <div className="border-b border-white/60 px-5 py-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-slate-900">
               Recent Orders
             </h2>
           </div>
@@ -113,7 +113,7 @@ export default function OrdersTable() {
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="Search orders..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:w-64"
+              className="glass-input w-full sm:w-64"
             />
 
             <select
@@ -121,7 +121,7 @@ export default function OrdersTable() {
               onChange={(event) =>
                 handleStatusChange(event.target.value as "All" | OrderStatus)
               }
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+              className="glass-input cursor-pointer"
             >
               <option value="All">All Statuses</option>
               <option value="Completed">Completed</option>
@@ -134,13 +134,13 @@ export default function OrdersTable() {
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[700px] text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+          <thead className="bg-white/40 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-5 py-3 font-medium">
                 <button
                   type="button"
                   onClick={() => handleSort("id")}
-                  className="hover:text-gray-900"
+                  className="hover:text-slate-900"
                 >
                   Order ID{getSortIndicator("id")}
                 </button>
@@ -150,7 +150,7 @@ export default function OrdersTable() {
                 <button
                   type="button"
                   onClick={() => handleSort("customer")}
-                  className="hover:text-gray-900"
+                  className="hover:text-slate-900"
                 >
                   Customer{getSortIndicator("customer")}
                 </button>
@@ -164,7 +164,7 @@ export default function OrdersTable() {
                 <button
                   type="button"
                   onClick={() => handleSort("amount")}
-                  className="hover:text-gray-900"
+                  className="hover:text-slate-900"
                 >
                   Amount{getSortIndicator("amount")}
                 </button>
@@ -174,7 +174,7 @@ export default function OrdersTable() {
                 <button
                   type="button"
                   onClick={() => handleSort("date")}
-                  className="hover:text-gray-900"
+                  className="hover:text-slate-900"
                 >
                   Date{getSortIndicator("date")}
                 </button>
@@ -182,38 +182,41 @@ export default function OrdersTable() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-white/50">
             {paginatedOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="whitespace-nowrap px-5 py-4 font-medium text-gray-900">
+              <tr
+                key={order.id}
+                className="transition-colors hover:bg-white/50"
+              >
+                <td className="whitespace-nowrap px-5 py-4 font-medium text-slate-900">
                   {order.id}
                 </td>
 
-                <td className="whitespace-nowrap px-5 py-4 text-gray-700">
+                <td className="whitespace-nowrap px-5 py-4 text-slate-700">
                   {order.customer}
                 </td>
 
-                <td className="px-5 py-4 text-gray-700">{order.product}</td>
+                <td className="px-5 py-4 text-slate-700">{order.product}</td>
 
                 <td className="px-5 py-4">
                   <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    className={`pill ${
                       order.status === "Completed"
-                        ? "bg-green-100 text-green-700"
+                        ? "border-emerald-300/60 bg-emerald-500/10 text-emerald-700"
                         : order.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
+                          ? "border-amber-300/60 bg-amber-400/15 text-amber-700"
+                          : "border-rose-300/60 bg-rose-500/10 text-rose-700"
                     }`}
                   >
                     {order.status}
                   </span>
                 </td>
 
-                <td className="whitespace-nowrap px-5 py-4 font-medium text-gray-900">
+                <td className="whitespace-nowrap px-5 py-4 font-medium text-slate-900">
                   ${order.amount.toLocaleString()}
                 </td>
 
-                <td className="whitespace-nowrap px-5 py-4 text-gray-700">
+                <td className="whitespace-nowrap px-5 py-4 text-slate-700">
                   {order.date}
                 </td>
               </tr>
@@ -224,17 +227,17 @@ export default function OrdersTable() {
 
       {sortedOrders.length === 0 && (
         <div className="px-5 py-12 text-center">
-          <p className="text-base font-medium text-gray-900">No orders found</p>
+          <p className="text-base font-medium text-slate-900">No orders found</p>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             Try changing your search or filter.
           </p>
         </div>
       )}
 
       {totalPages > 0 && (
-        <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-gray-600">
+        <div className="flex flex-col gap-3 border-t border-white/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-600">
             Showing{" "}
             <span className="font-medium">
               {(currentPage - 1) * ORDERS_PER_PAGE + 1}
@@ -251,12 +254,12 @@ export default function OrdersTable() {
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((page) => page - 1)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-glass text-slate-600"
             >
               Previous
             </button>
 
-            <span className="text-sm text-gray-600">
+            <span className="px-1 text-sm text-slate-600">
               Page {currentPage} of {totalPages}
             </span>
 
@@ -264,7 +267,7 @@ export default function OrdersTable() {
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((page) => page + 1)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-glass text-slate-600"
             >
               Next
             </button>
