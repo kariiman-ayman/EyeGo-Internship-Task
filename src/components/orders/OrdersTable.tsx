@@ -16,8 +16,8 @@ export default function OrdersTable() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"All" | OrderStatus>("All");
-  const [sortField, setSortField] = useState<SortField>("date");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [sortField, setSortField] = useState<SortField>("id");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
 
   const filteredOrders = useMemo(() => {
