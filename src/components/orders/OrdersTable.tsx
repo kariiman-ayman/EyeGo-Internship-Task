@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { OrderStatus } from "@/types/order";
+import ExportButtons from "@/components/orders/ExportButtons";
 
 type SortField = "id" | "customer" | "amount" | "date";
 type SortDirection = "asc" | "desc";
@@ -89,7 +90,15 @@ export default function OrdersTable() {
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Recent Orders
+            </h2>
+          </div>
+
+          <ExportButtons orders={sortedOrders} />
+        </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <input
